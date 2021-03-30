@@ -3,22 +3,26 @@ import java.util.*;
 /*Graph representation of the network*/
 public class Graph {
     private List<EdgeList> adjList = new ArrayList<>();
+    private ArrayList<Node> nodes;
+
     public Graph(ArrayList<Node> nodes){
+        this.nodes = nodes;
         for (Node n: nodes){
-            this.adjList.add(new EdgeList(n, getNodeEdges(nodes, n)));
+            this.adjList.add(new EdgeList(n, getNodeEdges(n)));
         } 
     }
     
     //Filter to get just the edges for each node
-    private ArrayList<Node> getNodeEdges(ArrayList<Node> nodes, Node node) {
+    private ArrayList<Node> getNodeEdges(Node node) {
         ArrayList<Node> edges = new ArrayList<>();
-        for (Node n: nodes) {
+        for (Node n: this.nodes) {
             if (n.getId() != node.getId()) 
                 edges.add(n);
         }
         return edges; 
     }
 
+    @Override
     public String toString(){
         String result = "";
         for(EdgeList el: this.adjList){

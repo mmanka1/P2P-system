@@ -1,12 +1,18 @@
 import java.util.*;
 
-public class buildNetwork {
-    static int sizeRing;
-    private static int hash(int id){
+public class Network {
+    private int sizeRing;
+    private Graph network;
+
+    public Network(int size) {
+        this.sizeRing = size;
+    }
+    
+    private int hash(int id){
         return id % sizeRing;
     }
 
-    private static int exp(int base, int exponent) {
+    private int exp(int base, int exponent) {
         int i = 0;
         int result = 1;
 
@@ -17,11 +23,9 @@ public class buildNetwork {
         return result;
     }
 
-    public static void main(String[] args) {
-        int[] processors = {3,1,8,6}; //List of processor ids
+    public void buildNetwork(int[] processors, int[] keys) {
         Arrays.sort(processors); //Sort list of processor ids in increasing order
-        int[] keys = {0,1,2,4,5,7,8,9,10,11}; //List of keys
-        sizeRing = exp(2, processors.length);
+        this.sizeRing = exp(2, processors.length);
 
         //Set keys to associated processors which they should be stored in
         Hashtable<Integer, ArrayList<Integer>> key_dict = new Hashtable<Integer, ArrayList<Integer>>();
@@ -69,9 +73,32 @@ public class buildNetwork {
             Node node = new Node(key, key_dict.get(key));
             nodeList.add(node);
         }
-
         //Create peer-to-peer network
-        Graph p2pNetwork = new Graph(nodeList);
-        System.out.println(p2pNetwork.toString());
+        this.network = new Graph(nodeList);
+    }
+
+    public Graph getNetwork() {
+        return this.network;
+    }
+
+    //Return processor where key was found, and return the id as a string
+    public String findKey() {
+        String str = "";
+        return str;
+    }
+
+    //Add a new processor and return the list of keys which are moved to the new processor
+    public ArrayList<Integer> addProcessor(Node processor) {
+        //TODO
+    }
+
+    //Remove a processor from the system
+    public void endProcessor(Node processor) {
+        //TODO
+    }
+
+    //Make a specified processor crash
+    public void crashProcessor(Node processor) {
+        //TODO
     }
 }
