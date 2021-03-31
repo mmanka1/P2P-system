@@ -1,6 +1,6 @@
 import java.util.*;
 
-/*Graph representation of the network*/
+/*Graph representation of the network using adjacency list*/
 public class Graph {
     private List<EdgeList> adjList = new ArrayList<>();
     private ArrayList<Node> nodes;
@@ -31,20 +31,24 @@ public class Graph {
         return null; //Node not found
     }
 
-    public ArrayList<Node> findEdges(Node node){
+    //Return the edges as integer ids connected to the specified node
+    public ArrayList<Integer> findEdges(Node node){
+        ArrayList<Integer> edgeIds = new ArrayList<>();
         for (EdgeList edgeList: adjList){
             if (edgeList.getNode().equals(node)){
-                return edgeList.getEdges();
+                for (Node n: edgeList.getEdges()){
+                    edgeIds.add(n.getId());
+                }
             }
         }
-        return null;
+        return edgeIds;
     }
 
     @Override
     public String toString(){
         String result = "";
         for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":" + el.getNode().getStoredKeys() + " => ";
+            result += el.getNode().getId() + ":" + el.getNode().getFingerTable()[2] + " => ";
             for(Node n: el.getEdges())
                 result += n.getId() + ", ";
             result += "\n";

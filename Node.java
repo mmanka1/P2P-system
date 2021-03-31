@@ -4,9 +4,13 @@ import java.util.*;
 public class Node {
     private int id;
     private ArrayList<Integer> storedKeys;
-    public Node(int id, ArrayList<Integer> storedKeys) {
+    private int[] fingerTable;
+    int successor;
+    public Node(int id, ArrayList<Integer> storedKeys, int[] fingerTable) {
         this.id = id;
         this.storedKeys = storedKeys;
+        this.fingerTable = fingerTable;
+        this.successor = fingerTable[0];
     }
 
     public int getId(){
@@ -15,5 +19,13 @@ public class Node {
 
     public ArrayList<Integer> getStoredKeys(){
         return this.storedKeys;
+    }
+
+    public int[] getFingerTable(){
+        return fingerTable;
+    }
+
+    public int getProcSuccessor(){
+        return successor;
     }
 }
