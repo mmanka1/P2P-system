@@ -6,6 +6,7 @@ public class Node {
     private ArrayList<Integer> storedKeys;
     private int[] fingerTable;
     int successor;
+
     public Node(int id, ArrayList<Integer> storedKeys, int[] fingerTable) {
         this.id = id;
         this.storedKeys = storedKeys;
@@ -21,8 +22,17 @@ public class Node {
         return this.storedKeys;
     }
 
+    public void setStoredKeys(ArrayList<Integer> storedKeys){
+        this.storedKeys = storedKeys;
+    }
+
     public int[] getFingerTable(){
         return fingerTable;
+    }
+
+    public void setFingerTable(int[] fingerTable){
+        this.fingerTable = fingerTable;
+        this.successor = fingerTable[0];
     }
 
     public int getProcSuccessor(){

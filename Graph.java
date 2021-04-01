@@ -31,10 +31,30 @@ public class Graph {
         return null; //Node not found
     }
 
+    public void addNode(Node node){
+        this.adjList.add(new EdgeList(node, setNodeEdges(node)));
+        this.nodes.add(node);
+        for (EdgeList edgeList: this.adjList) {
+            if (!edgeList.getNode().equals(node)){
+                edgeList.setEdge(node);
+            }
+        }
+    }
+
+    //Return the ids of all nodes in the graph
+    public ArrayList<Integer> getAllNodeIds(){
+        ArrayList<Integer> nodeIds = new ArrayList<>();
+        for (Node n: this.nodes) {
+            nodeIds.add(n.getId());
+        }
+        return nodeIds;
+    }
+
+
     //Return the edges as integer ids connected to the specified node
     public ArrayList<Integer> findEdges(Node node){
         ArrayList<Integer> edgeIds = new ArrayList<>();
-        for (EdgeList edgeList: adjList){
+        for (EdgeList edgeList: this.adjList){
             if (edgeList.getNode().equals(node)){
                 for (Node n: edgeList.getEdges()){
                     edgeIds.add(n.getId());
@@ -48,7 +68,7 @@ public class Graph {
     public String toString(){
         String result = "";
         for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":" + el.getNode().getFingerTable()[2] + " => ";
+            result += el.getNode().getId() + ":" + el.getNode().getStoredKeys() + " => ";
             for(Node n: el.getEdges())
                 result += n.getId() + ", ";
             result += "\n";

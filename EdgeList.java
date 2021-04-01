@@ -17,4 +17,9 @@ public class EdgeList {
     public ArrayList<Node> getEdges(){
         return this.edges;
     }
+
+    public void setEdge(Node node){
+        this.edges.add(node);
+    }
+
 }

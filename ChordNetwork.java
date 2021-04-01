@@ -1,12 +1,12 @@
 import java.util.*;
 
 public class ChordNetwork {
-    private int[] processors;
+    private ArrayList<Integer> processors;
     private int sizeRing;
     private int m; //exponent to calculate sizeRing
     private Graph network;
 
-    public ChordNetwork(int[] processors, int numProcessors) {
+    public ChordNetwork(ArrayList<Integer> processors, int numProcessors) {
         this.processors = processors;
         this.m = numProcessors;
     }
@@ -45,25 +45,25 @@ public class ChordNetwork {
     private int[] getSuccessor(int k) {
         int[] result = new int[2];
         for (int i = 0; i < (this.m-1); i++) {
-            if (hash(this.processors[i+1]) > hash(this.processors[i])) {
-                if (k > hash(this.processors[i]) && k <= hash(this.processors[i+1])){
+            if (hash(this.processors.get(i+1)) > hash(this.processors.get(i))) {
+                if (k > hash(this.processors.get(i)) && k <= hash(this.processors.get(i+1))){
                     result[0] = i+1;
-                    result[1] = hash(this.processors[i+1]);
+                    result[1] = hash(this.processors.get(i+1));
                     return result;
                 } 
             } 
-            if (hash(this.processors[i+1]) == hash(this.processors[i])) {
-                if (k == hash(this.processors[i+1])) {
+            if (hash(this.processors.get(i+1)) == hash(this.processors.get(i))) {
+                if (k == hash(this.processors.get(i+1))) {
                     result[0] = i+1;
-                    result[1] = hash(this.processors[i+1]);
+                    result[1] = hash(this.processors.get(i+1));
                     return result;
                 }  
             } 
-            if ((i+1) == (this.processors.length - 1)){
+            if ((i+1) == (this.processors.size() - 1)){
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((k > hash(this.processors[0]) && k > hash(this.processors[i+1])) || k < hash(this.processors[i+1])){
+                if ((k > hash(this.processors.get(0)) && k > hash(this.processors.get(i+1))) || k < hash(this.processors.get(i+1))){
                     result[0] = 0;
-                    result[1] = hash(this.processors[0]);
+                    result[1] = hash(this.processors.get(0));
                     return result;
                 } 
             }  
@@ -73,7 +73,7 @@ public class ChordNetwork {
 
     private int findSuccessor(int id){
         //Initialization
-        int id_known = this.processors[0];
+        int id_known = this.processors.get(0);
         Node processor;
         String succCurrent = null; //successor for current known processor
         int[] fingerTable = null; //fingerTable for current known processor
@@ -108,7 +108,7 @@ public class ChordNetwork {
                     int[] newNodeSuccessor = getSuccessor(Integer.parseInt(data[2]));
                     //If the successor of the new node is the same as the successor of the current known processor
                     if (hash(newNodeSuccessor[1]) == hash(Integer.parseInt(succCurrent))) 
-                        mssg = data[2] + "," + "FOUND_SUCC" + ","  + id;
+                        mssg = data[2] + "," + "FOUND_SUCC" + ","  + newNodeSuccessor[1];
                     else { //Otherwise, find the processor closest to the key and send a lookup to such processor
                         int indexClosest = closestProcessor(Integer.parseInt(data[2]), fingerTable);
                         if (indexClosest != -1) 
@@ -139,7 +139,7 @@ public class ChordNetwork {
     }
 
     public void buildNetwork(int[] keys) {
-        Arrays.sort(this.processors); //Sort list of processor ids in increasing order
+        Collections.sort(this.processors); //Sort list of processor ids in increasing order
         this.sizeRing = exp(2, this.m);
 
         //Set keys to associated processors which they should be stored in
@@ -314,9 +314,59 @@ public class ChordNetwork {
     }
 
     //Add a new processor and return the list of keys which are moved to the new processor
-    // public ArrayList<Integer> addProcessor(Node processor) {
-        
-    // }
+    public ArrayList<Integer> addProcessor(int id) {
+        //Update size of the ring and the nodes in the network
+        this.m++;
+        this.sizeRing = exp(2, this.m);
+
+        //Create finger table for node that will join the network
+        int[] fingerTable = setFingers(id, true);
+        Node successor = network.findNode(fingerTable[0]);
+
+        //Get the keys from the successor that should belong to the new node
+        ArrayList<Integer> transferredKeys = new ArrayList<>();
+        for (int key: successor.getStoredKeys()){
+            //Keys mapped to positions which are in the segment of the new node
+            if (hash(successor.getId()) > hash(id)){
+                if (hash(key) <= hash(id)) 
+                    transferredKeys.add(key); //add key to new node
+                else {
+                    if (hash(key) > hash(id) && hash(key) > hash(successor.getId()))
+                        transferredKeys.add(key); //add key to new node
+                }
+
+            } else if (hash(successor.getId()) == hash(id)){
+                return new ArrayList<>();
+            } else {
+                if (hash(key) <= hash(id) && hash(key) > hash(successor.getId())) 
+                    transferredKeys.add(key); //add key to new node
+            }
+        }
+
+        //Remove keys from successor
+        ArrayList<Integer> updatedStoredKeys = new ArrayList<>();
+        for (int key: successor.getStoredKeys()) {
+            if (!transferredKeys.contains(key))
+                updatedStoredKeys.add(key);
+        }
+        successor.setStoredKeys(updatedStoredKeys);
+
+        //Create new node and add it to the network as a new processor
+        Node newProcessor = new Node(id, transferredKeys, fingerTable);
+        network.addNode(newProcessor);
+
+        //Update processor list
+        this.processors = network.getAllNodeIds();
+        Collections.sort(this.processors); //Sort list of processor ids in increasing order
+
+        //Update finger table of other nodes
+        for (int finger: fingerTable){
+            fingerTable = setFingers(finger, false);
+            Node existingProcessor = network.findNode(finger);
+            existingProcessor.setFingerTable(fingerTable);
+        }
+        return transferredKeys;
+    }
 
     //Remove a processor from the system
     public void endProcessor(Node processor) {
