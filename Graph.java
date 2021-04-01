@@ -68,7 +68,10 @@ public class Graph {
     public String toString(){
         String result = "";
         for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":" + el.getNode().getStoredKeys() + " => ";
+            result += el.getNode().getId() + ":";
+            for(int finger: el.getNode().getFingerTable()) 
+                result += finger + ", ";
+            result += " => ";
             for(Node n: el.getEdges())
                 result += n.getId() + ", ";
             result += "\n";

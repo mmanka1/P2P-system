@@ -28,15 +28,17 @@ public class ChordNetwork {
 
     //Return index of closest processor to the key, based on a processor's finger table
     private int closestProcessor(int k, int[] fingerTable){
-        for (int i = 0; i < (fingerTable.length-1); i++) {
+        for (int i = this.m-1; i >= 0; i--) {
             if (hash(fingerTable[i+1]) > hash(fingerTable[i])) {
                 if (k >= hash(fingerTable[i]) && k < hash(fingerTable[i+1]))
                     return i;
             } 
-            else { //hp(fingerTable[i]) >= hp(fingerTable[i+1])
-                if ((k >= hash(fingerTable[i]) && k > hash(fingerTable[i+1])) || k < hash(fingerTable[i+1])){
-                    return i;
-                } 
+            else { 
+                if (hash(fingerTable[i]) > hash(fingerTable[i+1])){
+                    if ((k >= hash(fingerTable[i]) && k > hash(fingerTable[i+1])) || k < hash(fingerTable[i+1])){
+                        return i;
+                    } 
+                }
             }  
         }
         return -1;
@@ -123,18 +125,20 @@ public class ChordNetwork {
         }
     }
 
-    private int[] setFingers(int id, boolean nodeJoined){
-        int[] fingers = new int[this.m + 1];
-        if (nodeJoined) {
+    private int[] setFingers(int id, boolean newFingers){
+        int[] fingers;
+        if (newFingers) {
+            fingers = new int[this.m + 2];
             fingers[0] = findSuccessor(id);
-            for (int i = 1; i < m; i++)
+            for (int i = 1; i <= this.m; i++)
                 fingers[i] = findSuccessor((hash(id) + exp(2, i)) % this.sizeRing);
+            fingers[m+1] = id;
         } else {
-            for (int i = 0; i < m; i++)
+            fingers = new int[this.m + 1];
+            for (int i = 0; i < this.m; i++)
                 fingers[i] = getSuccessor((hash(id) + exp(2, i)) % this.sizeRing)[1];
+            fingers[m] = id;
         }
-        
-        fingers[m] = id;
         return fingers;
     }
 
@@ -194,7 +198,11 @@ public class ChordNetwork {
         //If this processor has the key
         if (processor.getStoredKeys().contains(key))
             return result = "Key " + key + " found locally at processor " + String.valueOf(processor.getId());
-        
+        //If processor doesn't have key but key and id mapped to same ring identifer, then key should have been stored locally
+            if (hash(id) == hash(key)){ 
+            return "Key " + key + " not found";
+        }
+         
         //Otherwise, current processor does not have key, so check if successor has the key
         int[] keySuccessor = getSuccessor(key);
         //If the successor of the key is the same as the successor of the current processor, 
@@ -313,12 +321,12 @@ public class ChordNetwork {
         }
     }
 
+    // public void fixFingers(int id) {
+
+    // }
+
     //Add a new processor and return the list of keys which are moved to the new processor
     public ArrayList<Integer> addProcessor(int id) {
-        //Update size of the ring and the nodes in the network
-        this.m++;
-        this.sizeRing = exp(2, this.m);
-
         //Create finger table for node that will join the network
         int[] fingerTable = setFingers(id, true);
         Node successor = network.findNode(fingerTable[0]);
@@ -359,12 +367,21 @@ public class ChordNetwork {
         this.processors = network.getAllNodeIds();
         Collections.sort(this.processors); //Sort list of processor ids in increasing order
 
+        //Update size of the ring and the nodes in the network
+        this.m++;
+        this.sizeRing = exp(2, this.m);
+
         //Update finger table of other nodes
-        for (int finger: fingerTable){
-            fingerTable = setFingers(finger, false);
-            Node existingProcessor = network.findNode(finger);
-            existingProcessor.setFingerTable(fingerTable);
+        for (int proc_id: this.processors){
+            if (proc_id != id){
+                Node existingProcessor = network.findNode(proc_id);
+                if (existingProcessor != null){
+                    fingerTable = setFingers(existingProcessor.getId(), false);
+                    existingProcessor.setFingerTable(fingerTable);
+                }
+            }
         }
+   
         return transferredKeys;
     }
 

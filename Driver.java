@@ -13,11 +13,12 @@ public class Driver {
         ChordNetwork p2pNetwork = new ChordNetwork(processors, processors.size());
         p2pNetwork.buildNetwork(keys);
 
-        System.out.println(p2pNetwork.addProcessor(5));
+        p2pNetwork.addProcessor(5);
+        p2pNetwork.addProcessor(0);
 
         //Display network nodes and edges as an adjacency list representation
         // System.out.println(p2pNetwork.getNetwork().toString());
 
-        System.out.println(p2pNetwork.findKey(1, 5));
+        System.out.println(p2pNetwork.findKey(1,1));   
     }
 }
