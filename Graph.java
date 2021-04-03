@@ -41,6 +41,36 @@ public class Graph {
         }
     }
 
+    public void removeNode(Node node){
+        //Remove node from nodes
+        for(Node n: this.nodes){
+            if (node.equals(n)){
+                this.nodes.remove(n);
+                break;
+            }
+        }
+        //Remove edgelist from adjacency list containing the node
+        for(EdgeList edgeList: this.adjList){
+            if (edgeList.getNode().equals(node)){
+                this.adjList.remove(edgeList);
+                break;
+            }
+        }
+        //For the remaining edgelist entries, remove the node from the other edgelist edges
+        for(EdgeList edgeList: this.adjList){
+            //If edges contains the node to be removed, then iterate over that list of edges to find such node
+            if (edgeList.getEdges().contains(node)){
+                for (Node edge: edgeList.getEdges()){
+                    //Once node found in the list, remove it
+                    if (edge.equals(node)){
+                        edgeList.getEdges().remove(edge);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     //Return the ids of all nodes in the graph
     public ArrayList<Integer> getAllNodeIds(){
         ArrayList<Integer> nodeIds = new ArrayList<>();
@@ -68,14 +98,20 @@ public class Graph {
     public String toString(){
         String result = "";
         for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":";
-            for(int finger: el.getNode().getFingerTable()) 
-                result += finger + ", ";
-            result += " => ";
+            result += el.getNode().getId() + ":" + el.getNode().getStoredKeys() + " => ";
             for(Node n: el.getEdges())
                 result += n.getId() + ", ";
             result += "\n";
         }
+        // for(EdgeList el: this.adjList){
+        //     result += el.getNode().getId() + ":";
+        //     for(int finger: el.getNode().getFingerTable()) 
+        //         result += finger + ", ";
+        //     result += " => ";
+        //     for(Node n: el.getEdges())
+        //         result += n.getId() + ", ";
+        //     result += "\n";
+        // }
         return result;
     }
 }
