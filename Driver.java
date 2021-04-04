@@ -17,11 +17,12 @@ public class Driver {
         p2pNetwork.addProcessor(0);
         p2pNetwork.endProcessor(5);
         p2pNetwork.endProcessor(1);
-        p2pNetwork.endProcessor(0);
+        p2pNetwork.endProcessor(0);  
+        // p2pNetwork.endProcessor(3);    
 
         //Display network nodes and edges as an adjacency list representation
         System.out.println(p2pNetwork.getNetwork().toString());
 
-        // System.out.println(p2pNetwork.findKey(1,1));   
+        // System.out.println(p2pNetwork.findKey(6,7));   
     }
 }

@@ -60,10 +60,18 @@ public class ChordNetwork {
                     result[1] = hash(this.processors.get(i+1));
                     return result;
                 }  
+            }
+            if (hash(this.processors.get(i)) > hash(this.processors.get(i+1))) {
+                //processor[0] is i+1 and processor[i+1] is i
+                if ((k > hash(this.processors.get(i)) && k > hash(this.processors.get(i+1))) || k <= hash(this.processors.get(i+1))){
+                    result[0] = i+1;
+                    result[1] = hash(this.processors.get(i+1));
+                    return result;
+                } 
             } 
             if ((i+1) == (this.processors.size() - 1)){
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((k > hash(this.processors.get(0)) && k > hash(this.processors.get(i+1))) || k < hash(this.processors.get(i+1))){
+                if ((k > hash(this.processors.get(0)) && k > hash(this.processors.get(i+1))) || k <= hash(this.processors.get(0))){
                     result[0] = 0;
                     result[1] = hash(this.processors.get(0));
                     return result;
