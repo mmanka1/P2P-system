@@ -103,15 +103,15 @@ public class Graph {
                 result += n.getId() + ", ";
             result += "\n";
         }
-        for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":";
-            for(int finger: el.getNode().getFingerTable()) 
-                result += finger + ", ";
-            result += " => ";
-            for(Node n: el.getEdges())
-                result += n.getId() + ", ";
-            result += "\n";
-        }
+        // for(EdgeList el: this.adjList){
+        //     result += el.getNode().getId() + ":";
+        //     for(int finger: el.getNode().getFingerTable()) 
+        //         result += finger + ", ";
+        //     result += " => ";
+        //     for(Node n: el.getEdges())
+        //         result += n.getId() + ", ";
+        //     result += "\n";
+        // }
         return result;
     }
 }

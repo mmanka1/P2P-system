@@ -26,6 +26,14 @@ public class Node {
         this.storedKeys = storedKeys;
     }
 
+    public void addStoredKey(int key){
+        this.storedKeys.add(key);
+    }
+
+    public void removeStoredKey(int key){
+        this.storedKeys.remove(key);
+    }
+
     public int[] getFingerTable(){
         return fingerTable;
     }
