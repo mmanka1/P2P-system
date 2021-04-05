@@ -30,12 +30,12 @@ public class ChordNetwork {
     private int closestProcessor(int k, int[] fingerTable){
         for (int i = this.m-1; i >= 0; i--) {
             if (hash(fingerTable[i+1]) > hash(fingerTable[i])) {
-                if (k >= hash(fingerTable[i]) && k < hash(fingerTable[i+1]))
+                if (hash(k) >= hash(fingerTable[i]) && hash(k) < hash(fingerTable[i+1]))
                     return i;
             } 
             else { 
                 if (hash(fingerTable[i]) > hash(fingerTable[i+1])){
-                    if ((k >= hash(fingerTable[i]) && k > hash(fingerTable[i+1])) || k < hash(fingerTable[i+1])){
+                    if ((hash(k) >= hash(fingerTable[i]) && hash(k) > hash(fingerTable[i+1])) || hash(k) < hash(fingerTable[i+1])){
                         return i;
                     } 
                 }
@@ -48,14 +48,14 @@ public class ChordNetwork {
         int[] result = new int[2];
         for (int i = 0; i < (this.m-1); i++) {
             if (hash(this.processors.get(i+1)) > hash(this.processors.get(i))) {
-                if (k > hash(this.processors.get(i)) && k <= hash(this.processors.get(i+1))){
+                if (hash(k) > hash(this.processors.get(i)) && k <= hash(this.processors.get(i+1))){
                     result[0] = i+1;
                     result[1] = hash(this.processors.get(i+1));
                     return result;
                 } 
             } 
             if (hash(this.processors.get(i+1)) == hash(this.processors.get(i))) {
-                if (k == hash(this.processors.get(i+1))) {
+                if (hash(k) == hash(this.processors.get(i+1))) {
                     result[0] = i+1;
                     result[1] = hash(this.processors.get(i+1));
                     return result;
@@ -63,7 +63,7 @@ public class ChordNetwork {
             }
             if (hash(this.processors.get(i)) > hash(this.processors.get(i+1))) {
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((k > hash(this.processors.get(i)) && k > hash(this.processors.get(i+1))) || k <= hash(this.processors.get(i+1))){
+                if ((hash(k) > hash(this.processors.get(i)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(i+1))){
                     result[0] = i+1;
                     result[1] = hash(this.processors.get(i+1));
                     return result;
@@ -71,7 +71,7 @@ public class ChordNetwork {
             } 
             if ((i+1) == (this.processors.size() - 1)){
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((k > hash(this.processors.get(0)) && k > hash(this.processors.get(i+1))) || k <= hash(this.processors.get(0))){
+                if ((hash(k) > hash(this.processors.get(0)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(0))){
                     result[0] = 0;
                     result[1] = hash(this.processors.get(0));
                     return result;
@@ -99,7 +99,7 @@ public class ChordNetwork {
             if (mssg != null) {
                 //Send mssg
                 id = Integer.parseInt(mssg.split(",")[0]);
-                processor = network.findNode(id);
+                processor = network.findNode(id, this.sizeRing);
                 if (processor != null){
                     succCurrent = String.valueOf(processor.getProcSuccessor());
                     fingerTable = processor.getFingerTable();
@@ -140,12 +140,12 @@ public class ChordNetwork {
             fingers[0] = findSuccessor(id);
             for (int i = 1; i <= this.m; i++)
                 fingers[i] = findSuccessor((hash(id) + exp(2, i)) % this.sizeRing);
-            fingers[m+1] = id;
+            fingers[m+1] = hash(id);
         } else {
             fingers = new int[this.m + 1];
             for (int i = 0; i < this.m; i++)
                 fingers[i] = getSuccessor((hash(id) + exp(2, i)) % this.sizeRing)[1];
-            fingers[m] = id;
+            fingers[m] = hash(id);
         }
         return fingers;
     }
@@ -189,7 +189,7 @@ public class ChordNetwork {
     //(1) id of processor to start search at 
     //(2) key to search for
     public String findKey(int id, int key) {
-        Node processor = network.findNode(id);  //Get processor corresponding to this processor id
+        Node processor = network.findNode(id, this.sizeRing);  //Get processor corresponding to this processor id
         if (processor == null){ //Processor does not exist in the network
             return "Processor not found";
         }  
@@ -198,7 +198,7 @@ public class ChordNetwork {
         String result = " ";
         int[] fingerTable = processor.getFingerTable();
         int succ = processor.getProcSuccessor();
-        ArrayList<Integer> processorEdgeIds = network.findEdges(processor);  //Get edges associated with node
+        ArrayList<Integer> processorEdgeIds = network.findEdges(processor, sizeRing);  //Get edges associated with node
         String mssg = null;
         String message = null;
         int originalId = id;
@@ -215,7 +215,7 @@ public class ChordNetwork {
         int[] keySuccessor = getSuccessor(key);
         //If the successor of the key is the same as the successor of the current processor, 
         //then the key must be in the segment between current processor and successor
-        if (hash(keySuccessor[1]) == hash(succ)) {
+        if (keySuccessor[1] == succ) {
             //If processor to send message to is connected to current processor
             if (processorEdgeIds.contains(fingerTable[keySuccessor[0]]))
                 mssg = succ + "," + "GET" + "," + key + "," + id;
@@ -232,13 +232,13 @@ public class ChordNetwork {
             if (mssg != null) {
                 //Send mssg
                 id = Integer.parseInt(mssg.split(",")[0]);
-                processor = network.findNode(id);
+                processor = network.findNode(id, this.sizeRing);
                 if (processor == null) { //Processor does not exist in the network
                     return "Processor not found during search"; 
                 } 
                 fingerTable = processor.getFingerTable();
                 succ = processor.getProcSuccessor();
-                processorEdgeIds = network.findEdges(processor);  //Get edges associated with node
+                processorEdgeIds = network.findEdges(processor, sizeRing);  //Get edges associated with node
 
                 //If received end message and the original processor, then return
                 if (mssg.split(",")[1].equals("END") && originalId == id){
@@ -260,10 +260,10 @@ public class ChordNetwork {
                         //If this processor has the key
                         if (processor.getStoredKeys().contains(Integer.parseInt(data[2]))){
                             if (processorEdgeIds.contains(Integer.parseInt(data[3])))
-                                mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + id;
+                                mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                         } else { 
                             //If there is another processor pj mapped to current processor pi, forward get request to pj
-                            if (hash(fingerTable[0]) == hash(id)) {
+                            if (fingerTable[0] == hash(id)) {
                                 if (processorEdgeIds.contains(succ)) 
                                     mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
                             } else {
@@ -275,7 +275,7 @@ public class ChordNetwork {
                                         mssg = succ + "," + "END";
                                 else { //Key not found
                                     if (processorEdgeIds.contains(Integer.parseInt(data[3])))
-                                        mssg = data[3] + "," + "NOT_FOUND" + "," + data[2] + "," + id;
+                                        mssg = data[3] + "," + "NOT_FOUND" + "," + data[2] + "," + processor.getId();
                                 }
                             }
                         }
@@ -284,17 +284,17 @@ public class ChordNetwork {
                             //If this processor has the key
                             if (processor.getStoredKeys().contains(Integer.parseInt(data[2]))){
                                 if (processorEdgeIds.contains(Integer.parseInt(data[3])))
-                                    mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + id;
+                                    mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                             } else {
                                 //If there is another processor pj mapped to current processor pi, forward get request to pj
-                                if (hash(fingerTable[0]) == hash(id)) {
+                                if (fingerTable[0] == hash(id)) {
                                     if (processorEdgeIds.contains(succ)) 
                                         mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
                                 } else {  //Otherwise, current processor does not have key, so check if successor has the key
                                     //If the successor of the key is the same as the successor of the current processor, 
                                     //then the key must be in the segment between current processor and successor
                                     keySuccessor = getSuccessor(key);
-                                    if (hash(keySuccessor[1]) == hash(succ)) {
+                                    if (keySuccessor[1] == succ) {
                                         //If processor to send message to is connected to current processor
                                         if (processorEdgeIds.contains(fingerTable[keySuccessor[0]]))
                                             mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
@@ -333,7 +333,7 @@ public class ChordNetwork {
         int[] fingerTable;
         for (int proc_id: this.processors){
             if (proc_id != id){
-                Node existingProcessor = network.findNode(proc_id);
+                Node existingProcessor = network.findNode(proc_id, this.sizeRing);
                 if (existingProcessor != null){
                     fingerTable = setFingers(existingProcessor.getId(), false);
                     existingProcessor.setFingerTable(fingerTable);
@@ -368,7 +368,7 @@ public class ChordNetwork {
     public ArrayList<Integer> addProcessor(int id) {
         //Create finger table for new processor that will join the network
         int[] fingerTable = setFingers(id, true);
-        Node successor = network.findNode(fingerTable[0]);
+        Node successor = network.findNode(fingerTable[0], this.sizeRing);
 
         //Get the keys from the successor that should belong to the new processor
         ArrayList<Integer> transferredKeys = getTransferredKeys(successor, id);
@@ -400,13 +400,13 @@ public class ChordNetwork {
 
     //Remove a processor from the system
     public void endProcessor(int id) {
-        Node processor = network.findNode(id);
+        Node processor = network.findNode(id, this.sizeRing);
         if (processor != null) {
             //Get the keys from the successor that should belong to the new processor
             ArrayList<Integer> transferredKeys = getTransferredKeys(processor, id);
 
             //Remove keys from the current processor and store them in the processor's successor
-            Node successor = network.findNode(processor.getProcSuccessor());
+            Node successor = network.findNode(processor.getProcSuccessor(), this.sizeRing);
             ArrayList<Integer> updatedStoredKeys = successor.getStoredKeys();
             for (int key: processor.getStoredKeys()) {  //Add keys from the processor to leave network
                 if (!transferredKeys.contains(key))

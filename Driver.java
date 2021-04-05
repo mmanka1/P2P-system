@@ -23,6 +23,6 @@ public class Driver {
         //Display network nodes and edges as an adjacency list representation
         System.out.println(p2pNetwork.getNetwork().toString());
 
-        // System.out.println(p2pNetwork.findKey(6,7));   
+        System.out.println(p2pNetwork.findKey(6,0));   //Key 0 not found
     }
 }

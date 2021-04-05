@@ -22,9 +22,9 @@ public class Graph {
         return edges; 
     }
 
-    public Node findNode(int id){
+    public Node findNode(int id, int size){
         for (Node n: nodes){
-            if (n.getId() == id) {
+            if ((n.getId() % size) == id || n.getId() == id) {
                 return n;
             }
         }
@@ -82,12 +82,12 @@ public class Graph {
 
 
     //Return the edges as integer ids connected to the specified node
-    public ArrayList<Integer> findEdges(Node node){
+    public ArrayList<Integer> findEdges(Node node, int size){
         ArrayList<Integer> edgeIds = new ArrayList<>();
         for (EdgeList edgeList: this.adjList){
             if (edgeList.getNode().equals(node)){
                 for (Node n: edgeList.getEdges()){
-                    edgeIds.add(n.getId());
+                    edgeIds.add(n.getId() % size);
                 }
             }
         }
