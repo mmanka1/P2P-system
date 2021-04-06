@@ -193,6 +193,14 @@ public class ChordNetwork {
         if (processor == null){ //Processor does not exist in the network
             return "Processor not found";
         }  
+        //Processor has crashed, so set the initial processor to its successor instead
+        if (processor.getCrashedStatus()){ 
+            int updatedId = processor.getProcSuccessor();
+            endProcessor(id, true); //Remove the crashed processor from the system
+            id = updatedId;
+            processor = network.findNode(id, this.sizeRing); //Once crashed processor removed, then get the updated successor
+        } 
+
         //Initialization
         String[] data;
         String result = " ";
@@ -224,7 +232,6 @@ public class ChordNetwork {
             if (indexClosest != -1) {
                 if (processorEdgeIds.contains(fingerTable[indexClosest])) 
                     mssg = fingerTable[indexClosest] + "," + "LOOKUP" + "," + key + "," + id;
-                else return "Failure during search";
             } 
         }
 
@@ -234,8 +241,17 @@ public class ChordNetwork {
                 //Send mssg
                 id = Integer.parseInt(mssg.split(",")[0]);
                 processor = network.findNode(id, this.sizeRing);
-                if (processor == null) { //Processor does not exist in the network
+                //Processor does not exist in the network
+                if (processor == null) { 
                     return "Processor not found during search"; 
+                } 
+                //Processor has crashed, so send message to its successor instead
+                if (processor.getCrashedStatus()){ 
+                    int updatedId = processor.getProcSuccessor();
+                    endProcessor(id, true); //Remove the crashed processor from the system
+                    originalId = hash(originalId); //Once crashed processor is removed, recompute the original id based on the size of the ring
+                    id = updatedId;
+                    processor = network.findNode(id, this.sizeRing); //Once crashed processor removed, then get the updated successor
                 } 
                 fingerTable = processor.getFingerTable();
                 succ = processor.getProcSuccessor();
@@ -278,7 +294,7 @@ public class ChordNetwork {
                                     mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
                             } else {
                                 //If message id equals id of original processor, get request travelled back to originating processor, so key not found
-                                if (Integer.parseInt(data[3]) == originalId) {
+                                if (hash(Integer.parseInt(data[3])) == originalId) {
                                     result = "Key " + data[2] + " not found";
                                     if (processorEdgeIds.contains(succ)) 
                                         //Send end process message to the other processors
@@ -300,8 +316,11 @@ public class ChordNetwork {
                                 if (hash(id) == hash(key)){ 
                                     result = "Key " + data[2] + " not found";
                                     if (processorEdgeIds.contains(succ))
-                                        //Send end process message successor
+                                        //Send end process message to successor
                                         mssg = succ + "," + "END";
+                                    else {
+                                        return result;
+                                    }
                                 }
                                 //If there is another processor pj mapped to current processor pi, forward get request to pj
                                 if (fingerTable[0] == hash(id)) {
@@ -332,6 +351,8 @@ public class ChordNetwork {
                                 if (processorEdgeIds.contains(succ))
                                     //Send end process message to successor
                                     mssg = succ + "," + "END";
+                                else 
+                                    return result;
                             } else {
                                 //If not found message is received
                                 if (data[1].equals("NOT_FOUND")) { 
@@ -339,6 +360,8 @@ public class ChordNetwork {
                                     if (processorEdgeIds.contains(succ))
                                         //Send end process message successor
                                         mssg = succ + "," + "END";
+                                    else 
+                                        return result;
                                 }
                             }
                         }
@@ -348,6 +371,7 @@ public class ChordNetwork {
         }
     }
 
+    //Update finger table entries for all processors
     public void fixFingers(int id) {
         int[] fingerTable;
         for (int proc_id: this.processors){
@@ -389,6 +413,18 @@ public class ChordNetwork {
         int[] fingerTable = setFingers(id, true);
         Node successor = network.findNode(fingerTable[0], this.sizeRing);
 
+        //Update size of the ring and the number of processors to be in the network
+        this.m++;
+        this.sizeRing = exp(2, this.m);
+
+        //If the successor has crashed
+        if (successor.getCrashedStatus()){
+            int updatedSuccessor = successor.getProcSuccessor(); //Get the id of the successor of the crashed successor
+            endProcessor(fingerTable[0], true); //Remove the crashed processor from the system
+            successor = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated successor
+            fingerTable = setFingers(id, false); //If successor crashed, also update the finger table of processor that joined the network
+        }
+
         //Get the keys from the successor that should belong to the new processor
         ArrayList<Integer> transferredKeys = getTransferredKeys(successor, id);
 
@@ -408,17 +444,13 @@ public class ChordNetwork {
         this.processors = network.getAllNodeIds();
         Collections.sort(this.processors); //Sort list of processor ids in increasing order
 
-        //Update size of the ring and the processors in the network
-        this.m++;
-        this.sizeRing = exp(2, this.m);
-
         //Update finger table of other processors
         fixFingers(id);
         return transferredKeys;
     }
 
     //Remove a processor from the system
-    public void endProcessor(int id) {
+    public void endProcessor(int id, boolean isCrashed) {
         Node processor = network.findNode(id, this.sizeRing);
         if (processor != null) {
             //Remove processor from network
@@ -434,44 +466,62 @@ public class ChordNetwork {
             //Update finger table of other nodes
             fixFingers(id);
 
-            //Get the keys from the removed processor and move them to the new appropriate successors
-            for (int key: processor.getStoredKeys()){
-                int hp = getSuccessor(key)[1];
-                Node succ = network.findNode(hp, this.sizeRing);
-                if (succ != null){
-                    if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
-                        succ.addStoredKey(key);
-                    }
-                }
-            }
-
-            //If the size of the ring is less than or equal to the id of some processors, then might need to move keys from those processors
-            for(int i = (this.m - 1); i >= 0; i--){
-                Node proc = network.findNode(this.processors.get(i), this.sizeRing);
-                if (proc != null){
-                    if (proc.getId() >= this.sizeRing) {
-                        ArrayList<Integer> keysToRemove = new ArrayList<>();
-                        for (int j = 0; j < proc.getStoredKeys().size(); j++){
-                            int key = proc.getStoredKeys().get(j);
-                            int hp = getSuccessor(key)[1];
-                            Node succ = network.findNode(hp, sizeRing);
-                            if (succ != null){
-                                if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
-                                    succ.addStoredKey(key);
-                                    keysToRemove.add(j);
-                                }
+            if (!isCrashed){
+                //Get the keys from the removed processor and move them to the new appropriate successors
+                for (int key: processor.getStoredKeys()){
+                    int hp = getSuccessor(key)[1];
+                    Node succ = network.findNode(hp, this.sizeRing);
+                    if (succ != null){
+                        //If the successor has crashed
+                        if (succ.getCrashedStatus()){
+                            int updatedSuccessor = succ.getProcSuccessor(); //Get the id of the successor of the crashed successor
+                            endProcessor(hp, true); //Remove the crashed processor from the system
+                            succ = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated su
+                        } else {
+                            if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
+                                succ.addStoredKey(key);
                             }
                         }
-                        for (int keyIndex: keysToRemove)
-                            proc.removeStoredKey(keyIndex);
-                    }   
+                    }
+                }
+                //If the size of the ring is less than or equal to the id of some processors, then might need to move keys from those processors
+                for(int i = (this.m - 1); i >= 0; i--){
+                    Node proc = network.findNode(this.processors.get(i), this.sizeRing);
+                    if (proc != null){
+                        if (proc.getId() >= this.sizeRing) {
+                            ArrayList<Integer> keysToRemove = new ArrayList<>();
+                            for (int j = 0; j < proc.getStoredKeys().size(); j++){
+                                int key = proc.getStoredKeys().get(j);
+                                int hp = getSuccessor(key)[1];
+                                Node succ = network.findNode(hp, sizeRing);
+                                if (succ != null){
+                                    //If the successor has crashed 
+                                    if (succ.getCrashedStatus()) {
+                                        int updatedSuccessor = succ.getProcSuccessor(); //Get the id of the successor of the crashed successor
+                                        endProcessor(hp, true); //Remove the crashed processor from the system
+                                        succ = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated successor
+                                    } else {
+                                        if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
+                                            succ.addStoredKey(key);
+                                            keysToRemove.add(j);
+                                        }
+                                    }
+                                }
+                            }
+                            for (int keyIndex: keysToRemove)
+                                proc.removeStoredKey(keyIndex);
+                        }   
+                    }
                 }
             }
         }
     }
 
     //Make a specified processor crash
-    public void crashProcessor(Node processor) {
-        //TODO
+    public void crashProcessor(int id) {
+        Node processor = network.findNode(id, this.sizeRing);
+        if (processor != null) {
+            processor.setCrashedStatus(true);
+        }
     }
 }

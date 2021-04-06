@@ -5,6 +5,7 @@ public class Node {
     private int id;
     private ArrayList<Integer> storedKeys;
     private int[] fingerTable;
+    private boolean isCrashed;
     int successor;
 
     public Node(int id, ArrayList<Integer> storedKeys, int[] fingerTable) {
@@ -12,6 +13,7 @@ public class Node {
         this.storedKeys = storedKeys;
         this.fingerTable = fingerTable;
         this.successor = fingerTable[0];
+        this.isCrashed = false;
     }
 
     public int getId(){
@@ -44,6 +46,14 @@ public class Node {
     }
 
     public int getProcSuccessor(){
-        return successor;
+        return this.successor;
+    }
+
+    public boolean getCrashedStatus(){
+        return this.isCrashed;
+    }
+    
+    public void setCrashedStatus(boolean status){
+        this.isCrashed = status;
     }
 }
