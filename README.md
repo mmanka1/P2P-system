@@ -1,5 +1,5 @@
 # P2P-system
-A Java-based simulation of a Peer-to-Peer System, which uses the Chord Protocol to perform efficient operations based on consistent hashing. This simulation supports various operations, including key lookup, processor addition into the network, processor removal from the network, and processor crashing on command.
+A Java-based simulation of a Peer-to-Peer System, which uses Chord, a distributed lookup protocol. This simulation supports various operations implemented on top of Chord, including key lookup, processor addition into the network, processor removal from the network, and processor crashing on command.
 
 ### Installation
 
