@@ -74,3 +74,7 @@ Where the processor ID specifies the processor to be removed from the network.
     
 Where the processor ID specifies the processor to be crashed.
 
+#### Exit Program
+   
+    quit
+
