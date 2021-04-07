@@ -95,22 +95,13 @@ public class Graph {
 
     @Override
     public String toString(){
-        String result = "";
+        String result = "NETWORK STATUS:\n";
         for(EdgeList el: this.adjList){
-            result += el.getNode().getId() + ":" + el.getNode().getStoredKeys() + " => ";
+            result += "Processor " + el.getNode().getId() + ": " + "Stored Keys: " + el.getNode().getStoredKeys() + " => Connected Nodes: ";
             for(Node n: el.getEdges())
                 result += n.getId() + ", ";
             result += "\n";
         }
-        // for(EdgeList el: this.adjList){
-        //     result += el.getNode().getId() + ":";
-        //     for(int finger: el.getNode().getFingerTable()) 
-        //         result += finger + ", ";
-        //     result += " => ";
-        //     for(Node n: el.getEdges())
-        //         result += n.getId() + ", ";
-        //     result += "\n";
-        // }
         return result;
     }
 }

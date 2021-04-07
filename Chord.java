@@ -77,7 +77,7 @@ public class Chord {
                 System.exit(0);
             }
             while(true) {   
-                System.out.print("Enter command: find, add, end, crash: ");
+                System.out.print("Enter command: find, add, end, crash, quit to exit: ");
                 String[] input = userInput.nextLine().split(",");
 
                 if (input[0].equals("quit")) {

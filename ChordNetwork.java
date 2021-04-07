@@ -213,11 +213,11 @@ public class ChordNetwork {
 
         //If this processor has the key
         if (processor.getStoredKeys().contains(key))
-            return result = "Key " + key + " found locally at processor " + String.valueOf(processor.getId());
+            return result = "Key " + key + " found locally at processor " + String.valueOf(processor.getId() + "\n");
         //If processor doesn't have key but key and id mapped to same ring identifer
         if (hash(id) == hash(key)){
             //Key should have been stored locally
-            return "Key " + key + " not found";
+            return "Key " + key + " not found\n";
         }
          
         //Otherwise, current processor does not have key, so check if successor has the key
@@ -244,7 +244,7 @@ public class ChordNetwork {
                 processor = network.findNode(id, this.sizeRing);
                 //Processor does not exist in the network
                 if (processor == null) { 
-                    return "Processor not found during search"; 
+                    return "Processor not found during search\n"; 
                 } 
                 //Processor has crashed, so send message to its successor instead
                 if (processor.getCrashedStatus()){ 
@@ -263,7 +263,7 @@ public class ChordNetwork {
                     return result;
                 }
             } else {
-                return "Failure during search";
+                return "Failure during search\n";
             }
 
             //RECEIVE MESSAGE
@@ -285,14 +285,14 @@ public class ChordNetwork {
                             //If processor doesn't have key but key and id mapped to same ring identifer
                             if (hash(id) == hash(key)){ 
                                 //Key should have been stored locally
-                                result = "Key " + data[2] + " not found";
+                                result = "Key " + data[2] + " not found\n";
                                 if (processorEdgeIds.contains(succ))
                                     //Send end process message successor
                                     mssg = succ + "," + "END";
                             } else {
                                 //If message id equals id of original processor, get request travelled back to originating processor, so key not found
                                 if (hash(Integer.parseInt(data[3])) == originalId) {
-                                    result = "Key " + data[2] + " not found";
+                                    result = "Key " + data[2] + " not found\n";
                                     if (processorEdgeIds.contains(succ)) 
                                         //Send end process message to the other processors
                                         mssg = succ + "," + "END";
@@ -312,7 +312,7 @@ public class ChordNetwork {
                                 //If processor doesn't have key but key and id mapped to same ring identifer
                                 if (hash(id) == hash(key)){ 
                                     //Key should have been stored locally
-                                    result = "Key " + data[2] + " not found";
+                                    result = "Key " + data[2] + " not found\n";
                                     if (processorEdgeIds.contains(succ))
                                         //Send end process message to successor
                                         mssg = succ + "," + "END";
@@ -336,14 +336,14 @@ public class ChordNetwork {
                             }
                         } else {
                             if (data[1].equals("FOUND")) {
-                                result = "Key " + data[2] + " found at processor " + data[3];
+                                result = "Key " + data[2] + " found at processor " + data[3] + "\n";
                                 if (processorEdgeIds.contains(succ))
                                     //Send end process message to successor
                                     mssg = succ + "," + "END";
                             } else {
                                 //If not found message is received
                                 if (data[1].equals("NOT_FOUND")) { 
-                                    result = "Key " + data[2] + " not found";
+                                    result = "Key " + data[2] + " not found\n";
                                     if (processorEdgeIds.contains(succ))
                                         //Send end process message successor
                                         mssg = succ + "," + "END";
