@@ -37,13 +37,13 @@ For example:
 
     1,2,3
     
+Example [processor](https://github.com/mmanka1/P2P-system/blob/master/ProcessorList.txt) and [key](https://github.com/mmanka1/P2P-system/blob/master/KeyList.txt) list files have been provided for convenience.
+    
     
 ### Initialize Network
 In the same directory where compiled and where the .txt files are located, first execute the following command to initialize the network:
 
     java Chord build <processorIDListFile.txt> <keyListFile.txt>
-    
-Example [processor](https://github.com/mmanka1/P2P-system/blob/master/ProcessorList.txt) and [key](https://github.com/mmanka1/P2P-system/blob/master/KeyList.txt) list files have been provided for convenience.
 
 Once this command has been executed, a representation of the network is displayed as an adjacency list.
     
