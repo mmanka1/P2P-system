@@ -22,9 +22,9 @@ public class Graph {
         return edges; 
     }
 
-    public Node findNode(int id, int size){
+    public Node findNode(int id){
         for (Node n: nodes){
-            if (n.getId() == id || (n.getId() % size) == id)
+            if (n.getId() == id)
                 return n;
         }
         return null; //Node not found
