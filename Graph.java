@@ -24,9 +24,8 @@ public class Graph {
 
     public Node findNode(int id, int size){
         for (Node n: nodes){
-            if ((n.getId() % size) == id || n.getId() == id) {
+            if (n.getId() == id || (n.getId() % size) == id)
                 return n;
-            }
         }
         return null; //Node not found
     }
@@ -103,15 +102,15 @@ public class Graph {
                 result += n.getId() + ", ";
             result += "\n";
         }
-        // for(EdgeList el: this.adjList){
-        //     result += el.getNode().getId() + ":";
-        //     for(int finger: el.getNode().getFingerTable()) 
-        //         result += finger + ", ";
-        //     result += " => ";
-        //     for(Node n: el.getEdges())
-        //         result += n.getId() + ", ";
-        //     result += "\n";
-        // }
+        for(EdgeList el: this.adjList){
+            result += el.getNode().getId() + ":";
+            for(int finger: el.getNode().getFingerTable()) 
+                result += finger + ", ";
+            result += " => ";
+            for(Node n: el.getEdges())
+                result += n.getId() + ", ";
+            result += "\n";
+        }
         return result;
     }
 }

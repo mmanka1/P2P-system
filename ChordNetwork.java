@@ -11,7 +11,7 @@ public class ChordNetwork {
         this.m = numProcessors;
     }
     
-    private int hash(int id){
+    public int hash(int id){
         return id % sizeRing;
     }
 
@@ -214,8 +214,9 @@ public class ChordNetwork {
         //If this processor has the key
         if (processor.getStoredKeys().contains(key))
             return result = "Key " + key + " found locally at processor " + String.valueOf(processor.getId());
-        //If processor doesn't have key but key and id mapped to same ring identifer, then key should have been stored locally
-        if (hash(id) == hash(key)){ 
+        //If processor doesn't have key but key and id mapped to same ring identifer
+        if (hash(id) == hash(key)){
+            //Key should have been stored locally
             return "Key " + key + " not found";
         }
          
@@ -281,17 +282,13 @@ public class ChordNetwork {
                             if (processorEdgeIds.contains(hash(Integer.parseInt(data[3]))))
                                 mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                         } else { 
-                            //If processor doesn't have key but key and id mapped to same ring identifer, then key should have been stored locally
+                            //If processor doesn't have key but key and id mapped to same ring identifer
                             if (hash(id) == hash(key)){ 
+                                //Key should have been stored locally
                                 result = "Key " + data[2] + " not found";
                                 if (processorEdgeIds.contains(succ))
                                     //Send end process message successor
                                     mssg = succ + "," + "END";
-                            }
-                            //If there is another processor pj mapped to current processor pi, forward get request to pj
-                            if (fingerTable[0] == hash(id)) {
-                                if (processorEdgeIds.contains(succ)) 
-                                    mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
                             } else {
                                 //If message id equals id of original processor, get request travelled back to originating processor, so key not found
                                 if (hash(Integer.parseInt(data[3])) == originalId) {
@@ -312,20 +309,14 @@ public class ChordNetwork {
                                 if (processorEdgeIds.contains(hash(Integer.parseInt(data[3]))))
                                     mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                             } else {
-                                //If processor doesn't have key but key and id mapped to same ring identifer, then key should have been stored locally
+                                //If processor doesn't have key but key and id mapped to same ring identifer
                                 if (hash(id) == hash(key)){ 
+                                    //Key should have been stored locally
                                     result = "Key " + data[2] + " not found";
                                     if (processorEdgeIds.contains(succ))
                                         //Send end process message to successor
                                         mssg = succ + "," + "END";
-                                    else {
-                                        return result;
-                                    }
-                                }
-                                //If there is another processor pj mapped to current processor pi, forward get request to pj
-                                if (fingerTable[0] == hash(id)) {
-                                    if (processorEdgeIds.contains(succ)) 
-                                        mssg = succ + "," + "GET" + "," + data[2] + "," + data[3];
+                                    
                                 } else {  //Otherwise, current processor does not have key, so check if successor has the key
                                     //If the successor of the key is the same as the successor of the current processor, 
                                     //then the key must be in the segment between current processor and successor
@@ -339,9 +330,7 @@ public class ChordNetwork {
                                         if (indexClosest != -1) {
                                             if (processorEdgeIds.contains(fingerTable[indexClosest])) 
                                                 mssg = fingerTable[indexClosest] + "," + "LOOKUP" + "," + data[2] + "," + data[3];
-                                        } else {
-                                            return "Failure during search";
-                                        }
+                                        } 
                                     }
                                 }
                             }
@@ -351,8 +340,6 @@ public class ChordNetwork {
                                 if (processorEdgeIds.contains(succ))
                                     //Send end process message to successor
                                     mssg = succ + "," + "END";
-                                else 
-                                    return result;
                             } else {
                                 //If not found message is received
                                 if (data[1].equals("NOT_FOUND")) { 
@@ -360,8 +347,6 @@ public class ChordNetwork {
                                     if (processorEdgeIds.contains(succ))
                                         //Send end process message successor
                                         mssg = succ + "," + "END";
-                                    else 
-                                        return result;
                                 }
                             }
                         }
@@ -413,16 +398,12 @@ public class ChordNetwork {
         int[] fingerTable = setFingers(id, true);
         Node successor = network.findNode(fingerTable[0], this.sizeRing);
 
-        //Update size of the ring and the number of processors to be in the network
-        this.m++;
-        this.sizeRing = exp(2, this.m);
-
         //If the successor has crashed
         if (successor.getCrashedStatus()){
             int updatedSuccessor = successor.getProcSuccessor(); //Get the id of the successor of the crashed successor
             endProcessor(fingerTable[0], true); //Remove the crashed processor from the system
             successor = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated successor
-            fingerTable = setFingers(id, false); //If successor crashed, also update the finger table of processor that joined the network
+            fingerTable = setFingers(id, true); //If successor crashed, also update the finger table of processor that joined the network
         }
 
         //Get the keys from the successor that should belong to the new processor
@@ -444,6 +425,14 @@ public class ChordNetwork {
         this.processors = network.getAllNodeIds();
         Collections.sort(this.processors); //Sort list of processor ids in increasing order
 
+        //Update the number of processors to be in the network
+        this.m++;
+        //Update the size of the ring
+        //If the new size of the ring is equal to or smaller than the largest processor id, then increase m to avoid collisions
+        if (exp(2, this.m) <= this.processors.get(this.m-1))
+        this.sizeRing = exp(2, this.m) + this.processors.get(this.m-1); //Ensure that the size of the ring is larger than largest processor id
+        else this.sizeRing = exp(2, this.m);
+
         //Update finger table of other processors
         fixFingers(id);
         return transferredKeys;
@@ -461,7 +450,10 @@ public class ChordNetwork {
 
             //Update size of the ring and the nodes in the network
             this.m--;
-            this.sizeRing = exp(2, this.m);
+            //If the new size of the ring is equal to or smaller than the largest processor id, then increase m to avoid collisions
+            if (exp(2, this.m) <= this.processors.get(this.m-1))
+                this.sizeRing = exp(2, this.m) + this.processors.get(this.m-1); //Ensure that the size of the ring is larger than largest processor id
+            else this.sizeRing = exp(2, this.m);
 
             //Update finger table of other nodes
             fixFingers(id);
@@ -476,41 +468,12 @@ public class ChordNetwork {
                         if (succ.getCrashedStatus()){
                             int updatedSuccessor = succ.getProcSuccessor(); //Get the id of the successor of the crashed successor
                             endProcessor(hp, true); //Remove the crashed processor from the system
-                            succ = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated su
+                            succ = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated successor
                         } else {
                             if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
                                 succ.addStoredKey(key);
                             }
                         }
-                    }
-                }
-                //If the size of the ring is less than or equal to the id of some processors, then might need to move keys from those processors
-                for(int i = (this.m - 1); i >= 0; i--){
-                    Node proc = network.findNode(this.processors.get(i), this.sizeRing);
-                    if (proc != null){
-                        if (proc.getId() >= this.sizeRing) {
-                            ArrayList<Integer> keysToRemove = new ArrayList<>();
-                            for (int j = 0; j < proc.getStoredKeys().size(); j++){
-                                int key = proc.getStoredKeys().get(j);
-                                int hp = getSuccessor(key)[1];
-                                Node succ = network.findNode(hp, sizeRing);
-                                if (succ != null){
-                                    //If the successor has crashed 
-                                    if (succ.getCrashedStatus()) {
-                                        int updatedSuccessor = succ.getProcSuccessor(); //Get the id of the successor of the crashed successor
-                                        endProcessor(hp, true); //Remove the crashed processor from the system
-                                        succ = network.findNode(updatedSuccessor, this.sizeRing); //Once crashed processor removed, then get the updated successor
-                                    } else {
-                                        if (!succ.getStoredKeys().contains(key)) { //If processor for key to be moved to does not already contain the key
-                                            succ.addStoredKey(key);
-                                            keysToRemove.add(j);
-                                        }
-                                    }
-                                }
-                            }
-                            for (int keyIndex: keysToRemove)
-                                proc.removeStoredKey(keyIndex);
-                        }   
                     }
                 }
             }
