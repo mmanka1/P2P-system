@@ -47,7 +47,11 @@ public class Chord {
             if (command.equals("find")) {
                 System.out.println(p2pNetwork.findKey(Integer.parseInt(arg1), Integer.parseInt(arg2)));
             } else if (command.equals("add")) {
-                System.out.println(p2pNetwork.addProcessor(Integer.parseInt(arg1)));
+                ArrayList<Integer> keysTransferred = p2pNetwork.addProcessor(Integer.parseInt(arg1));
+                if (keysTransferred != null)
+                    System.out.println("KEYS TRANSFERRED: " + keysTransferred + "\n");
+                else
+                    System.out.println("Another processor already exists with the same id\n");
                 //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
                 System.out.println(p2pNetwork.getNetwork().toString());
             } else if (command.equals("end")) {

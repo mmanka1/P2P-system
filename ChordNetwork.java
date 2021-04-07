@@ -394,6 +394,12 @@ public class ChordNetwork {
 
     //Add a new processor and return the list of keys which are moved to the new processor
     public ArrayList<Integer> addProcessor(int id) {
+        Node processor = network.findNode(id, sizeRing);
+        //If found processor with the same id that is already in the network, then new processor should not be added
+        if (processor != null) {
+            return null;
+        }
+
         //Create finger table for new processor that will join the network
         int[] fingerTable = setFingers(id, true);
         Node successor = network.findNode(fingerTable[0], this.sizeRing);
