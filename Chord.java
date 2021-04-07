@@ -9,11 +9,11 @@ public class Chord {
     public static void parseNetworkConfig(String command, String arg1, String arg2) throws IOException {
         if (command.equals("build")) {
             if (!Files.exists(Paths.get(arg1))){
-                System.err.println("file not exist: " + arg1);
+                System.err.println("File does not exist: " + arg1);
                 System.exit(0);
             }
             if (!Files.exists(Paths.get(arg2))){
-                System.err.println("file not exist: " + arg2);
+                System.err.println("File does not exist: " + arg2);
                 System.exit(0);
             }
             //Parse the processors from the processor id list
@@ -36,7 +36,7 @@ public class Chord {
             System.out.println(p2pNetwork.getNetwork().toString());
 
         } else {
-            System.err.println("Usage for network initialization: java Chord build <processorConfigFile> <keyConfigFile>");
+            System.err.println("Usage for network initialization: java Chord build <processorIDListFile> <keyListFile>");
             System.exit(0);
         }
     }
@@ -59,7 +59,7 @@ public class Chord {
                 //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
                 System.out.println(p2pNetwork.getNetwork().toString());
             } else {
-                System.err.println("Usage: java Chord <command: find, add, end, crash>,<arguments>");
+                System.err.println("Usage: java Chord <command>,<arguments>");
             }
         } else {
             System.err.println("Network not initialized correctly");
@@ -73,11 +73,11 @@ public class Chord {
             if (args.length == 3) {
                 parseNetworkConfig(args[0],args[1],args[2]);
             } else {
-                System.err.println("Usage for network initialization: java Chord build <processorConfigFile> <keyConfigFile>");
+                System.err.println("Usage for network initialization: java Chord build <processorIDListFile> <keyListFile>");
                 System.exit(0);
             }
             while(true) {   
-                System.out.print("Enter: <command: find, add, end, crash>,<arguments>:");
+                System.out.print("Enter command: find, add, end, crash: ");
                 String[] input = userInput.nextLine().split(",");
 
                 if (input[0].equals("quit")) {
