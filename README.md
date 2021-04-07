@@ -37,11 +37,15 @@ For example:
 
     1,2,3
     
+Example [processor](https://github.com/mmanka1/P2P-system/blob/master/ProcessorList.txt) and [key](https://github.com/mmanka1/P2P-system/blob/master/KeyList.txt) list files have been provided for convenience.
+    
     
 ### Initialize Network
 In the same directory where compiled and where the .txt files are located, first execute the following command to initialize the network:
 
-    java Chord build <processorIDListFile> <keyListFile>
+    java Chord build <processorIDListFile.txt> <keyListFile.txt>
+
+Once this command has been executed, a representation of the network is displayed as an adjacency list.
     
 ### Commands to Interact with Network
 Once the network has been initialized, the program will prompt for user command. The command and associated arguments required are as follows:
@@ -69,4 +73,8 @@ Where the processor ID specifies the processor to be removed from the network.
     crash,<processorId>
     
 Where the processor ID specifies the processor to be crashed.
+
+#### Exit Program
+   
+    quit
 
