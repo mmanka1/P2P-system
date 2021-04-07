@@ -48,7 +48,7 @@ In the same directory where compiled and where the .txt files are located, first
 Once this command has been executed, a representation of the network is displayed as an adjacency list.
     
 ### Commands to Interact with Network
-Once the network has been initialized, the program will prompt for user command. The command and associated arguments required are as follows:
+Once the network has been initialized, the program will prompt for user command. The supported commands and associated arguments are as follows:
 
 #### Key Lookup
 
