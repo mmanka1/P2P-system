@@ -41,7 +41,11 @@ For example:
 ### Initialize Network
 In the same directory where compiled and where the .txt files are located, first execute the following command to initialize the network:
 
-    java Chord build <processorIDListFile> <keyListFile>
+    java Chord build <processorIDListFile.txt> <keyListFile.txt>
+    
+Example files have been provided for convenience.
+
+Once this command has been executed, a representation of the network is displayed as an adjacency list.
     
 ### Commands to Interact with Network
 Once the network has been initialized, the program will prompt for user command. The command and associated arguments required are as follows:
