@@ -23,7 +23,7 @@ To run, the program needs to initialize a network consisting of the processors a
 
 #### Keys.txt
 
-    key1,key2,key3 
+    <key1>,<key2>,<key3>
     
 For example:
 
@@ -31,7 +31,7 @@ For example:
     
 #### Processors.txt
 
-    processorID1,processorID2,processorID3
+    <processorID1>,<processorID2>,<processorID3>
     
 For example:
 
