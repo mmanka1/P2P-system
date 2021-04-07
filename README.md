@@ -1,5 +1,5 @@
 # P2P-system
-A Java-based simulation of a Peer-to-Peer System, which uses the Chord Protocol to perform efficient operations based on consistent hashing. This simulation supports various operations, including key lookup, processor addition into the network, processor removal from the network, and processor crashing on command.
+A Java-based simulation of a Peer-to-Peer System, which uses Chord, a distributed lookup protocol. This simulation supports various operations implemented on top of Chord, including key lookup, processor addition into the network, processor removal from the network, and processor crashing on command.
 
 ### Installation
 
@@ -23,7 +23,7 @@ To run, the program needs to initialize a network consisting of the processors a
 
 #### Keys.txt
 
-    key1,key2,key3 
+    <key1>,<key2>,<key3>
     
 For example:
 
@@ -31,7 +31,7 @@ For example:
     
 #### Processors.txt
 
-    processorID1,processorID2,processorID3
+    <processorID1>,<processorID2>,<processorID3>
     
 For example:
 
@@ -40,7 +40,7 @@ For example:
 Example [processor](https://github.com/mmanka1/P2P-system/blob/master/ProcessorList.txt) and [key](https://github.com/mmanka1/P2P-system/blob/master/KeyList.txt) list files have been provided for convenience.
     
     
-### Initialize Network
+### Network Initialization
 In the same directory where compiled and where the .txt files are located, first execute the following command to initialize the network:
 
     java Chord build <processorIDListFile.txt> <keyListFile.txt>
@@ -48,7 +48,7 @@ In the same directory where compiled and where the .txt files are located, first
 Once this command has been executed, a representation of the network is displayed as an adjacency list.
     
 ### Commands to Interact with Network
-Once the network has been initialized, the program will prompt for user command. The command and associated arguments required are as follows:
+Once the network has been initialized, the program will prompt for user command. The supported commands and associated arguments are as follows:
 
 #### Key Lookup
 
