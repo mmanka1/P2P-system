@@ -22,8 +22,8 @@ public class Chord {
             for (String processor: processorList)
                 parsedProcessors.add(Integer.parseInt(processor));
             
-            if (parsedProcessors.size() <= 1){
-                System.err.println("At least two processors must be initialized in the network");
+            if (parsedProcessors.size() <= 2){
+                System.err.println("At least three processors must be initialized in the network");
                 System.exit(0);
             }
             
