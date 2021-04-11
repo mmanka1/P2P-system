@@ -252,6 +252,14 @@ public class ChordNetwork {
             nodeList.add(node);
         }
 
+        //For any processors that do not store keys, also add these processors to the nodelist
+        for (int processorId: this.processors){
+            if (!dictKeySet.contains(processorId)){
+                Node node = new Node(processorId, new ArrayList<Integer>(), setFingers(processorId, false));
+                nodeList.add(node);
+            }
+        }
+
         //Create peer-to-peer network
         this.network = new Graph(nodeList);
     }
