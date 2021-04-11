@@ -86,7 +86,7 @@ public class Graph {
         for (EdgeList edgeList: this.adjList){
             if (edgeList.getNode().equals(node)){
                 for (Node n: edgeList.getEdges()){
-                    edgeIds.add(n.getId() % size);
+                    edgeIds.add(n.getId());
                 }
             }
         }

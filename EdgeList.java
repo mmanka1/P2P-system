@@ -19,7 +19,7 @@ public class EdgeList {
     }
 
     public void setEdge(Node node){
-        this.edges.add(node);
+        this.edges.add(node);   
     }
 
 }

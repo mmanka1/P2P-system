@@ -22,6 +22,11 @@ public class Chord {
             for (String processor: processorList)
                 parsedProcessors.add(Integer.parseInt(processor));
             
+            if (parsedProcessors.size() <= 1){
+                System.err.println("At least two processors must be initialized in the network");
+                System.exit(0);
+            }
+            
             //Parse the keys from the key list
             String[] keyList = new String(Files.readAllBytes(Paths.get(arg2))).split(",");
             int[] parsedKeys = new int[keyList.length];
