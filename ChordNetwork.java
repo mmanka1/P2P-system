@@ -4,7 +4,8 @@ public class ChordNetwork {
     private ArrayList<Integer> processors;
     private int numProcessors;
     private int numKeys;
-    private int sizeRing;
+    private int sizeRing; //2^m identifier space
+    private int keySpace; //Key space U
 
     private int u; //Number of bits to represent identifers in the U universe
     private int m; //Number of bits to represent identifers in M universe
@@ -61,12 +62,10 @@ public class ChordNetwork {
      * @return
      */
     private int hashKey(int key){
-        int randomInt = randomHash.nextInt(this.u);
+        int randomInt = randomHash.nextInt(this.keySpace);
         int a = this.sizeRing * randomInt;
         int b = key % this.sizeRing;
         return ((a*key) + b) % this.sizeRing;
-        // return key % sizeRing;
-
     }
 
     /**
@@ -228,6 +227,7 @@ public class ChordNetwork {
         set_m(); 
         set_u();
         this.sizeRing = exp(2, this.m);
+        this.keySpace = exp(2, this.u);
 
         //Set keys to associated processors which they should be stored in
         Hashtable<Integer, ArrayList<Integer>> key_dict = new Hashtable<Integer, ArrayList<Integer>>();
