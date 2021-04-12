@@ -215,7 +215,7 @@ public class ChordNetwork {
                 } else {
                     fingers[i] = findSuccessor(id + exp(2, i));
                 }   
-        fingers[m] = hash(id);
+        fingers[m] = id;
         return fingers;
     }
 
