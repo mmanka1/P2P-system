@@ -1,10 +1,15 @@
 import java.util.*;
 
-/*Graph representation of the network using adjacency list*/
+/**
+ * Graph representation of the network using adjacency list
+ */
 public class Graph {
     private List<EdgeList> adjList = new ArrayList<>();
     private ArrayList<Node> nodes;
-
+    /**
+     * Constructor
+     * @param nodes
+     */
     public Graph(ArrayList<Node> nodes){
         this.nodes = nodes;
         for (Node n: nodes){
@@ -12,7 +17,11 @@ public class Graph {
         } 
     }
     
-    //Filter to get just the edges for each node
+    /**
+     * Filter to get just the edges for each node
+     * @param node
+     * @return
+     */
     private ArrayList<Node> setNodeEdges(Node node) {
         ArrayList<Node> edges = new ArrayList<>();
         for (Node n: this.nodes) {
@@ -22,6 +31,11 @@ public class Graph {
         return edges; 
     }
 
+    /**
+     * Find node by id
+     * @param id
+     * @return
+     */
     public Node findNode(int id){
         for (Node n: nodes){
             if (n.getId() == id)
@@ -30,6 +44,10 @@ public class Graph {
         return null; //Node not found
     }
 
+    /**
+     * 
+     * @param node
+     */
     public void addNode(Node node){
         this.adjList.add(new EdgeList(node, setNodeEdges(node)));
         this.nodes.add(node);
@@ -40,6 +58,10 @@ public class Graph {
         }
     }
 
+    /**
+     * 
+     * @param node
+     */
     public void removeNode(Node node){
         //Remove node from nodes
         for(Node n: this.nodes){
@@ -70,7 +92,10 @@ public class Graph {
         }
     }
 
-    //Return the ids of all nodes in the graph
+    /**
+     * Return the ids of all nodes in the graph
+     * @return
+     */
     public ArrayList<Integer> getAllNodeIds(){
         ArrayList<Integer> nodeIds = new ArrayList<>();
         for (Node n: this.nodes) {
@@ -79,8 +104,12 @@ public class Graph {
         return nodeIds;
     }
 
-
-    //Return the edges as integer ids connected to the specified node
+    /**
+     * Return the edges as integer ids connected to the specified node
+     * @param node
+     * @param size
+     * @return
+     */
     public ArrayList<Integer> findEdges(Node node, int size){
         ArrayList<Integer> edgeIds = new ArrayList<>();
         for (EdgeList edgeList: this.adjList){
@@ -93,6 +122,10 @@ public class Graph {
         return edgeIds;
     }
 
+    /**
+     * Print network status
+     * @return result
+     */
     @Override
     public String toString(){
         String result = "NETWORK STATUS:\n";

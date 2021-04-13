@@ -14,7 +14,7 @@ public class ChordNetwork {
     private Graph network;
 
     /**
-     * Initialize network
+     * Constructor for network
      * @param processors
      * @param numProcessors
      */
