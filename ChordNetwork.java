@@ -57,24 +57,15 @@ public class ChordNetwork {
     }
 
     /**
-     * Universal hash function to hash keys
+     * Universal hash function to hash keys and nodes
      * @param key
      * @return
      */
-    private int hashKey(int key){
+    private int hash(int keyId){
         int randomInt = randomHash.nextInt(this.keySpace);
         int a = this.sizeRing * randomInt;
-        int b = key % this.sizeRing;
-        return ((a*key) + b) % this.sizeRing;
-    }
-
-    /**
-     * Deterministic hash function to hash processors ids
-     * @param id
-     * @return
-     */ 
-    private int hash(int id) {
-        return id % sizeRing;
+        int b = keyId % this.sizeRing;
+        return ((a*keyId) + b) % this.sizeRing;
     }
 
     /**
@@ -86,11 +77,11 @@ public class ChordNetwork {
     private int closestProcessor(int k, int[] fingerTable){
         for (int i = this.m-1; i >= 0; i--) {
             if (hash(fingerTable[i+1]) > hash(fingerTable[i])) {
-                if (hashKey(k) >= hash(fingerTable[i]) && hashKey(k) < hash(fingerTable[i+1]))
+                if (hash(k) >= hash(fingerTable[i]) && hash(k) < hash(fingerTable[i+1]))
                     return i;
             } else { 
                 if (hash(fingerTable[i]) > hash(fingerTable[i+1])){
-                    if ((hashKey(k) >= hash(fingerTable[i]) && hashKey(k) > hash(fingerTable[i+1])) || hashKey(k) < hash(fingerTable[i+1])){
+                    if ((hash(k) >= hash(fingerTable[i]) && hash(k) > hash(fingerTable[i+1])) || hash(k) < hash(fingerTable[i+1])){
                         return i;
                     } 
                 }
@@ -108,14 +99,14 @@ public class ChordNetwork {
         int[] result = new int[2];
         for (int i = 0; i < (this.m-1); i++) {
             if (hash(this.processors.get(i+1)) > hash(this.processors.get(i))) {
-                if (hashKey(k) > hash(this.processors.get(i)) && hashKey(k) <= hash(this.processors.get(i+1))){
+                if (hash(k) > hash(this.processors.get(i)) && hash(k) <= hash(this.processors.get(i+1))){
                     result[0] = i+1;
                     result[1] = this.processors.get(i+1);
                     return result;
                 } 
             } 
             if (hash(this.processors.get(i+1)) == hash(this.processors.get(i))) {
-                if (hashKey(k) == hash(this.processors.get(i+1))) {
+                if (hash(k) == hash(this.processors.get(i+1))) {
                     result[0] = i+1;
                     result[1] = this.processors.get(i+1);
                     return result;
@@ -123,7 +114,7 @@ public class ChordNetwork {
             }
             if (hash(this.processors.get(i)) > hash(this.processors.get(i+1))) {
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((hashKey(k) > hash(this.processors.get(i)) && hashKey(k) > hash(this.processors.get(i+1))) || hashKey(k) <= hash(this.processors.get(i+1))){
+                if ((hash(k) > hash(this.processors.get(i)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(i+1))){
                     result[0] = i+1;
                     result[1] = this.processors.get(i+1);
                     return result;
@@ -131,7 +122,7 @@ public class ChordNetwork {
             } 
             if ((i+1) == (this.processors.size() - 1)){
                 //processor[0] is i+1 and processor[i+1] is i
-                if ((hashKey(k) > hash(this.processors.get(0)) && hashKey(k) > hash(this.processors.get(i+1))) || hashKey(k) <= hash(this.processors.get(0))){
+                if ((hash(k) > hash(this.processors.get(0)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(0))){
                     result[0] = 0;
                     result[1] = this.processors.get(0);
                     return result;
@@ -310,7 +301,7 @@ public class ChordNetwork {
         if (processor.getStoredKeys().contains(key))
             return result = "Key " + key + " found locally at processor " + String.valueOf(processor.getId() + "\n");
         //If processor doesn't have key but key and id mapped to same ring identifer
-        if (hash(id) == hashKey(key)){
+        if (hash(id) == hash(key)){
             //Key should have been stored locally
             return "Key " + key + " not found\n";
         }
@@ -377,7 +368,7 @@ public class ChordNetwork {
                                 mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                         } else { 
                             //If processor doesn't have key but key and id mapped to same ring identifer
-                            if (hash(id) == hashKey(key)){ 
+                            if (hash(id) == hash(key)){ 
                                 //Key should have been stored locally
                                 result = "Key " + data[2] + " not found\n";
                                 if (processorEdgeIds.contains(succ))
@@ -404,7 +395,7 @@ public class ChordNetwork {
                                     mssg = data[3] + "," + "FOUND" + "," + data[2] + "," + processor.getId();
                             } else {
                                 //If processor doesn't have key but key and id mapped to same ring identifer
-                                if (hash(id) == hashKey(key)){ 
+                                if (hash(id) == hash(key)){ 
                                     //Key should have been stored locally
                                     result = "Key " + data[2] + " not found\n";
                                     if (processorEdgeIds.contains(succ))
@@ -478,16 +469,16 @@ public class ChordNetwork {
         for (int key: processor.getStoredKeys()){
             //Keys mapped to positions which are in the segment of the processor
             if (hash(processor.getId()) > hash(id)){
-                if (hashKey(key) <= hash(id)) 
+                if (hash(key) <= hash(id)) 
                     transferredKeys.add(key); //add key to processor
                 else {
-                    if (hashKey(key) > hash(id) && hashKey(key) > hash(processor.getId()))
+                    if (hash(key) > hash(id) && hash(key) > hash(processor.getId()))
                         transferredKeys.add(key); //add key to processor
                 }
             } else if (hash(processor.getId()) == hash(id)){
                 return new ArrayList<>();
             } else {
-                if (hashKey(key) <= hash(id) && hashKey(key) > hash(processor.getId())) 
+                if (hash(key) <= hash(id) && hash(key) > hash(processor.getId())) 
                     transferredKeys.add(key); //add key to processor
             }
         }
