@@ -97,38 +97,44 @@ public class ChordNetwork {
      */
     private int[] getSuccessor(int k) {
         int[] result = new int[2];
-        for (int i = 0; i < (this.m-1); i++) {
-            if (hash(this.processors.get(i+1)) > hash(this.processors.get(i))) {
-                if (hash(k) > hash(this.processors.get(i)) && hash(k) <= hash(this.processors.get(i+1))){
-                    result[0] = i+1;
-                    result[1] = this.processors.get(i+1);
-                    return result;
+        try {
+            for (int i = 0; i < (this.m-1); i++) {
+                if (hash(this.processors.get(i+1)) > hash(this.processors.get(i))) {
+                    if (hash(k) > hash(this.processors.get(i)) && hash(k) <= hash(this.processors.get(i+1))){
+                        result[0] = i+1;
+                        result[1] = this.processors.get(i+1);
+                        return result;
+                    } 
                 } 
-            } 
-            if (hash(this.processors.get(i+1)) == hash(this.processors.get(i))) {
-                if (hash(k) == hash(this.processors.get(i+1))) {
-                    result[0] = i+1;
-                    result[1] = this.processors.get(i+1);
-                    return result;
+                if (hash(this.processors.get(i+1)) == hash(this.processors.get(i))) {
+                    if (hash(k) == hash(this.processors.get(i+1))) {
+                        result[0] = i+1;
+                        result[1] = this.processors.get(i+1);
+                        return result;
+                    }  
+                }
+                if (hash(this.processors.get(i)) > hash(this.processors.get(i+1))) {
+                    //processor[0] is i+1 and processor[i+1] is i
+                    if ((hash(k) > hash(this.processors.get(i)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(i+1))){
+                        result[0] = i+1;
+                        result[1] = this.processors.get(i+1);
+                        return result;
+                    } 
+                } 
+                if ((i+1) == (this.processors.size() - 1)){
+                    //processor[0] is i+1 and processor[i+1] is i
+                    if ((hash(k) > hash(this.processors.get(0)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(0))){
+                        result[0] = 0;
+                        result[1] = this.processors.get(0);
+                        return result;
+                    } 
                 }  
             }
-            if (hash(this.processors.get(i)) > hash(this.processors.get(i+1))) {
-                //processor[0] is i+1 and processor[i+1] is i
-                if ((hash(k) > hash(this.processors.get(i)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(i+1))){
-                    result[0] = i+1;
-                    result[1] = this.processors.get(i+1);
-                    return result;
-                } 
-            } 
-            if ((i+1) == (this.processors.size() - 1)){
-                //processor[0] is i+1 and processor[i+1] is i
-                if ((hash(k) > hash(this.processors.get(0)) && hash(k) > hash(this.processors.get(i+1))) || hash(k) <= hash(this.processors.get(0))){
-                    result[0] = 0;
-                    result[1] = this.processors.get(0);
-                    return result;
-                } 
-            }  
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("No more processors can be removed or added");
+            System.exit(0);
         }
+        
         return null;
     }
 
