@@ -52,31 +52,35 @@ public class Chord {
 
     //arg1 is the processor id
     public static void parseCommand(String command, String arg1, String arg2) throws IOException {
-        if (p2pNetwork != null){
-            if (command.equals("find")) {
-                System.out.println(p2pNetwork.findKey(Integer.parseInt(arg1), Integer.parseInt(arg2)));
-            } else if (command.equals("add")) {
-                ArrayList<Integer> keysTransferred = p2pNetwork.addProcessor(Integer.parseInt(arg1));
-                if (keysTransferred != null)
-                    System.out.println("KEYS TRANSFERRED: " + keysTransferred + "\n");
-                else
-                    System.out.println("Another processor already exists with the same id\n");
-                //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
-                System.out.println(p2pNetwork.getNetwork().toString());
-            } else if (command.equals("end")) {
-                p2pNetwork.endProcessor(Integer.parseInt(arg1), false);
-                //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
-                System.out.println(p2pNetwork.getNetwork().toString());
-            } else if (command.equals("crash")) {
-                p2pNetwork.crashProcessor(Integer.parseInt(arg1));
-                //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
-                System.out.println(p2pNetwork.getNetwork().toString());
+        try {
+            if (p2pNetwork != null){
+                if (command.equals("find")) {
+                    System.out.println(p2pNetwork.findKey(Integer.parseInt(arg1), Integer.parseInt(arg2)));
+                } else if (command.equals("add")) {
+                    ArrayList<Integer> keysTransferred = p2pNetwork.addProcessor(Integer.parseInt(arg1));
+                    if (keysTransferred != null)
+                        System.out.println("KEYS TRANSFERRED: " + keysTransferred + "\n");
+                    else
+                        System.out.println("Another processor already exists with the same id\n");
+                    //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
+                    System.out.println(p2pNetwork.getNetwork().toString());
+                } else if (command.equals("end")) {
+                    p2pNetwork.endProcessor(Integer.parseInt(arg1), false);
+                    //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
+                    System.out.println(p2pNetwork.getNetwork().toString());
+                } else if (command.equals("crash")) {
+                    p2pNetwork.crashProcessor(Integer.parseInt(arg1));
+                    //Display updated network processors, their stored keys, and the connected edges as an adjacency list representation
+                    System.out.println(p2pNetwork.getNetwork().toString());
+                } else {
+                    System.err.println("Usage: java Chord <command>,<arguments>");
+                }
             } else {
-                System.err.println("Usage: java Chord <command>,<arguments>");
+                System.err.println("Network not initialized correctly.");
+                System.exit(0);
             }
-        } else {
-            System.err.println("Network not initialized correctly");
-            System.exit(0);
+        } catch (Exception e) {
+            System.err.println("Could not parse command. Please see usage.");
         }
     }
 
@@ -109,7 +113,7 @@ public class Chord {
                 } 
             }
         } catch(IOException error){
-            System.err.println("Command Error");
+            System.err.println("Command Error.");
         }
     }
 }
