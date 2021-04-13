@@ -1,8 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Chord {
     private static ChordNetwork p2pNetwork = null;
@@ -22,8 +21,13 @@ public class Chord {
             for (String processor: processorList)
                 parsedProcessors.add(Integer.parseInt(processor));
             
-            if (parsedProcessors.size() <= 2){
-                System.err.println("At least three processors must be initialized in the network");
+            Set<Integer> parsedProcessorSet = new HashSet<Integer>(parsedProcessors);
+            if(parsedProcessorSet.size() < parsedProcessors.size()){
+                System.err.println("There are duplicate processor identifiers");
+                System.exit(0);
+            }
+            if (parsedProcessors.size() <= 1){
+                System.err.println("At least two processors must be initialized in the network");
                 System.exit(0);
             }
             

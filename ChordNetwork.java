@@ -217,7 +217,7 @@ public class ChordNetwork {
                     }   
             fingers[m] = id;
         } catch (NullPointerException e){
-            System.out.println("No more nodes can be added to the system\n");
+            System.err.println("No more nodes can be added to the system\n");
             System.exit(0);
         }  
         return fingers;
