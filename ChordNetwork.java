@@ -57,7 +57,7 @@ public class ChordNetwork {
     }
 
     /**
-     * k-Universal hash function to hash keys
+     * Universal hash function to hash keys
      * @param key
      * @return
      */
@@ -204,17 +204,22 @@ public class ChordNetwork {
      * @return
      */
     private int[] setFingers(int id, boolean onJoin){
-        int[] fingers = new int[this.m + 1];   
-        for (int i = 0; i < this.m; i++)
-            if (!onJoin)
-                fingers[i] = getSuccessor(id + exp(2, i))[1];
-            else 
-                if (i == 0) {
-                    fingers[i] = findSuccessor(id);
-                } else {
-                    fingers[i] = findSuccessor(id + exp(2, i));
-                }   
-        fingers[m] = id;
+        int[] fingers = new int[this.m + 1]; 
+        try { 
+            for (int i = 0; i < this.m; i++)
+                if (!onJoin)
+                    fingers[i] = getSuccessor(id + exp(2, i))[1];
+                else 
+                    if (i == 0) {
+                        fingers[i] = findSuccessor(id);
+                    } else {
+                        fingers[i] = findSuccessor(id + exp(2, i));
+                    }   
+            fingers[m] = id;
+        } catch (NullPointerException e){
+            System.out.println("No more nodes can be added to the system\n");
+            System.exit(0);
+        }  
         return fingers;
     }
 
@@ -574,6 +579,8 @@ public class ChordNetwork {
                     }
                 }
             }
+        } else {
+            System.out.println("Node not found\n");
         }
     }
 
